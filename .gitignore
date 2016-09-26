@@ -1,0 +1,7 @@
+build
+*.pcap
+*.xml
+scratch
+*.pyc
+.lock*
+.waf*
