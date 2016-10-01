@@ -669,16 +669,16 @@ def create_ns3_program(bld, name, dependencies=('core',)):
     program.use = program.ns3_module_dependencies
     if program.env['ENABLE_STATIC_NS3']:
         if sys.platform == 'darwin':
-            program.env.STLIB_MARKER = '-Wl,-all_load,-lcryptopp'
+            program.env.STLIB_MARKER = '-Wl,-all_load'
         else:
-            program.env.STLIB_MARKER = '-Wl,-Bstatic,--whole-archive,-lcryptopp'
-            program.env.SHLIB_MARKER = '-Wl,-Bdynamic,--no-whole-archive,-lcryptopp'
+            program.env.STLIB_MARKER = '-Wl,-Bstatic,--whole-archive'
+            program.env.SHLIB_MARKER = '-Wl,-Bdynamic,--no-whole-archive'
     else:
         if program.env.DEST_BINFMT == 'elf':
             # All ELF platforms are impacted but only the gcc compiler has a flag to fix it.
             if 'gcc' in (program.env.CXX_NAME, program.env.CC_NAME): 
-                program.env.append_value ('SHLIB_MARKER', '-Wl,--no-as-needed,-lcryptopp')
- 
+                program.env.append_value ('SHLIB_MARKER', '-Wl,--no-as-needed')
+
     return program
 
 def register_ns3_script(bld, name, dependencies=('core',)):
@@ -710,7 +710,7 @@ def add_scratch_programs(bld):
                 obj.target = filename
                 obj.name = obj.target
                 obj.install_path = None
-                obj.uselib = 'CRYPTOPP'
+                obj.uselib = ‘CRYPTOPP'
             elif filename.endswith(".cc"):
                 name = filename[:-len(".cc")]
                 obj = bld.create_ns3_program(name, all_modules)
@@ -719,7 +719,7 @@ def add_scratch_programs(bld):
                 obj.target = name
                 obj.name = obj.target
                 obj.install_path = None
-                obj.uselib = 'CRYPTOPP'
+                obj.uselib = ‘CRYPTOPP'
     except OSError:
         return
 

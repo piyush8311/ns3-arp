@@ -10,11 +10,41 @@
 #include <string>
 #include <stdint.h>
 
+#include "cryptopp/secblock.h"
+using CryptoPP::SecByteBlock;
+
+#include <iostream>
+#include <string>
+using std::cout;
+using std::endl;
+using std::string;
+
+#include <cryptopp/sha.h>
+#include <cryptopp/rsa.h>
+using CryptoPP::InvertibleRSAFunction;
+using CryptoPP::RSA;
+using CryptoPP::RSASS;
+
+#include "cryptopp/integer.h"
+using CryptoPP::Integer;
+
+#include "cryptopp/pubkey.h"
+using CryptoPP::PrivateKey;
+using CryptoPP::PublicKey;
+
+#include "cryptopp/hex.h"
+using CryptoPP::HexEncoder;
+using CryptoPP::HexDecoder;
+
+#include "cryptopp/osrng.h"
+using CryptoPP::AutoSeededRandomPool;
+
 namespace ns3 {
+void createOneKeyPair(RSA::PrivateKey &privateKey, RSA::PublicKey &publicKey);
 
-uint32_t createDigitalSignature(char* privateKey, std::string message);
+SecByteBlock createDigitalSignature(RSA::PrivateKey privateKey, std::string message);
 
-bool verifyDigitalSignature(uint32_t digitalSignature, char* publicKey);
+bool verifyDigitalSignature(SecByteBlock signature, RSA::PublicKey publicKey, std::string message);
 
 }
 
