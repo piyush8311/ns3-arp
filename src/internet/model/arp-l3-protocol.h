@@ -29,6 +29,13 @@
 #include "ns3/random-variable-stream.h"
 #include "ns3/crypto.h"
 
+#include <cryptopp/rsa.h>
+using CryptoPP::RSA;
+
+#include "cryptopp/pubkey.h"
+using CryptoPP::PrivateKey;
+using CryptoPP::PublicKey;
+
 namespace ns3 {
 
 class ArpCache;

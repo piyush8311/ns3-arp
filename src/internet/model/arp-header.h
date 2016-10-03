@@ -27,6 +27,9 @@
 #include <string>
 #include <stdint.h>
 
+#include "cryptopp/secblock.h"
+using CryptoPP::SecByteBlock;
+
 namespace ns3 {
 /**
  * \ingroup arp
@@ -58,7 +61,7 @@ public:
                  Address destinationHardwareAddress,
                  Ipv4Address destinationProtocolAddress);
 
-  void SetDigitalSignature(uint32_t digitalSignature);
+  void SetDigitalSignature(SecByteBlock digitalSignature);
   /**
    * \brief Check if the ARP is a request
    * \returns true if it is a request
@@ -95,7 +98,7 @@ public:
    */
   Ipv4Address GetDestinationIpv4Address (void);
 
-  uint32_t GetDigitalSignature(void);
+  SecByteBlock GetDigitalSignature(void);
   /**
    * \brief Get the type ID.
    * \return the object TypeId
@@ -119,7 +122,7 @@ public:
   Address m_macDest;         //!< hardware destination address
   Ipv4Address m_ipv4Source;  //!< IP source address
   Ipv4Address m_ipv4Dest;    //!< IP destination address
-  uint32_t m_digitalSignature;
+  SecByteBlock m_digitalSignature;
 };
 
 } // namespace ns3

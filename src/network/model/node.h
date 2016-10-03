@@ -28,6 +28,13 @@
 #include "ns3/ptr.h"
 #include "ns3/net-device.h"
 
+#include <cryptopp/rsa.h>
+using CryptoPP::RSA;
+
+#include "cryptopp/pubkey.h"
+using CryptoPP::PrivateKey;
+using CryptoPP::PublicKey;
+
 #include <map>
 
 #define KEY_LENGTH 100
@@ -81,13 +88,13 @@ public:
    * the NodeList. 
    */
 
-  void SetPrivateKey (char* privateKey);
+  void SetPrivateKey (RSA::PrivateKey privateKey);
 
-  void SetPublicKeys (std::map<Address, char* > publicKeys);
+  void SetPublicKeys (std::map<Address, RSA::PublicKey > publicKeys);
 
-  char* GetPrivateKey();
+  RSA::PrivateKey GetPrivateKey();
 
-  std::map<Address, char* > GetPublicKeys();
+  std::map<Address, RSA::PublicKey > GetPublicKeys();
 
   uint32_t GetId (void) const;
 
@@ -301,8 +308,9 @@ private:
   std::vector<Ptr<Application> > m_applications; //!< Applications associated to this node
   ProtocolHandlerList m_handlers; //!< Protocol handlers in the node
   DeviceAdditionListenerList m_deviceAdditionListeners; //!< Device addition listeners in the node
-  char privateKey[KEY_LENGTH];
-  std::map<Address, char* > publicKeys;
+  //char privateKey[KEY_LENGTH];
+  RSA::PrivateKey privateKey;
+  std::map<Address, RSA::PublicKey > publicKeys;
 };
 
 } // namespace ns3

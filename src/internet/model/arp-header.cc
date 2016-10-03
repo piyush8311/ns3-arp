@@ -56,7 +56,7 @@ ArpHeader::SetReply (Address sourceHardwareAddress,
   m_ipv4Dest = destinationProtocolAddress;
 }
 void
-ArpHeader::SetDigitalSignature (uint32_t digitalSignature)
+ArpHeader::SetDigitalSignature (SecByteBlock digitalSignature)
 {
   m_digitalSignature = digitalSignature;
 }
@@ -96,7 +96,7 @@ ArpHeader::GetDestinationIpv4Address (void)
   NS_LOG_FUNCTION (this);
   return m_ipv4Dest;
 }
-uint32_t
+SecByteBlock
 ArpHeader::GetDigitalSignature(void)
 {
   NS_LOG_FUNCTION(this);
@@ -151,7 +151,10 @@ ArpHeader::GetSerializedSize (void) const
 
   uint32_t length = 16;   // Length minus two hardware addresses
   length += m_macSource.GetLength () * 2;
-  length += sizeof(uint32_t);
+  //length += sizeof(uint32_t);
+  std::string m_digitalSignature_string(reinterpret_cast<const char*>(m_digitalSignature.data()),m_digitalSignature.size());
+  int sig_length = m_digitalSignature_string.length();
+  length += sig_length;
   return length;
 }
 
@@ -173,7 +176,15 @@ ArpHeader::Serialize (Buffer::Iterator start) const
   WriteTo (i, m_ipv4Source);
   WriteTo (i, m_macDest);
   WriteTo (i, m_ipv4Dest);
-  i.WriteHtolsbU32(m_digitalSignature);
+  //i.WriteHtolsbU32(m_digitalSignature);
+  std::string m_digitalSignature_string(reinterpret_cast<const char*>(m_digitalSignature.data()),m_digitalSignature.size());
+  int sig_length = m_digitalSignature_string.length();
+  char sig_str[sig_length];
+  strcpy(sig_str, m_digitalSignature_string.c_str());
+  for(int j=0; j<sig_length; j++)
+  {
+    i.WriteU8(sig_str[j]);
+  }
 }
 
 uint32_t
@@ -202,7 +213,20 @@ ArpHeader::Deserialize (Buffer::Iterator start)
   ReadFrom (i, m_ipv4Source);                    // Read SPA (size PLN == 4)
   ReadFrom (i, m_macDest, hardwareAddressLen);   // Read THA (size HLN)
   ReadFrom (i, m_ipv4Dest);                      // Read TPA (size PLN == 4)
-  m_digitalSignature = i.ReadLsbtohU32();
+  //m_digitalSignature = i.ReadLsbtohU32();
+  //int sig_length = GetSerializedSize();
+  char sig_str[200] = {0};
+  int j = 0;
+  while(i.IsEnd())
+  {
+    sig_str[j] = i.ReadU8();
+    j++;
+  }
+  sig_str[j] = '\0';
+  std::string m_digitalSignature_string(sig_str);
+  SecByteBlock temp_s(reinterpret_cast<const byte*>(m_digitalSignature_string.data()), m_digitalSignature_string.size());
+  m_digitalSignature = temp_s;
+
   return GetSerializedSize ();
 }
 

@@ -188,10 +188,10 @@ ArpL3Protocol::Receive (Ptr<NetDevice> device, Ptr<const Packet> p, uint16_t pro
       NS_LOG_LOGIC ("ARP: Cannot remove ARP header");
       return;
     }
-  std::map<Address, char* > publicKeys = m_node->GetPublicKeys();
+  std::map<Address, RSA::PublicKey > publicKeys = m_node->GetPublicKeys();
   Address mac_from = arp.GetSourceHardwareAddress();
-  char *publicKey = publicKeys[mac_from];
-  if(!verifyDigitalSignature(arp.GetDigitalSignature(), publicKey))
+  RSA::PublicKey publicKey = publicKeys[mac_from];
+  if(!verifyDigitalSignature(arp.GetDigitalSignature(), publicKey , packet->ToString()))
 	{
 	  NS_LOG_LOGIC ("ARP : ARP packet received from unauthentic source");
 	  std::cout<<"ARP : ARP packet received from unauthentic source\n";

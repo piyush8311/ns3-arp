@@ -105,24 +105,24 @@ Node::~Node ()
 }
 
 void
-Node::SetPrivateKey (char *privateKey)
+Node::SetPrivateKey (RSA::PrivateKey privateKey)
 {
-	strcpy(this->privateKey, privateKey);
+	this->privateKey = privateKey;
 }
 
 void
-Node::SetPublicKeys (std::map<Address, char* > publicKeys)
+Node::SetPublicKeys (std::map<Address, RSA::PublicKey > publicKeys)
 {
 	this->publicKeys = publicKeys;
 }
 
-char*
+RSA::PrivateKey
 Node::GetPrivateKey()
 {
 	return privateKey;
 }
 
-std::map<Address, char* >
+std::map<Address, RSA::PublicKey >
 Node::GetPublicKeys()
 {
 	return publicKeys;
