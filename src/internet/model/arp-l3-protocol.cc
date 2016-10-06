@@ -33,6 +33,7 @@
 #include "ipv4-interface.h"
 
 #include <iostream>
+#include <string>
 
 namespace ns3 {
 
@@ -183,15 +184,25 @@ ArpL3Protocol::Receive (Ptr<NetDevice> device, Ptr<const Packet> p, uint16_t pro
   //
   ArpHeader arp;
   uint32_t size = packet->RemoveHeader (arp);
+  std::ostringstream oss;
+  arp.Print (oss);
   if (size == 0)
     {
       NS_LOG_LOGIC ("ARP: Cannot remove ARP header");
       return;
     }
-  std::map<Address, RSA::PublicKey > publicKeys = m_node->GetPublicKeys();
-  Address mac_from = arp.GetSourceHardwareAddress();
-  RSA::PublicKey publicKey = publicKeys[mac_from];
-  if(!verifyDigitalSignature(arp.GetDigitalSignature(), publicKey , packet->ToString()))
+  std::map<uint32_t, RSA::PublicKey > publicKeys = m_node->GetPublicKeys();
+  uint32_t ip_from = arp.GetSourceIpv4Address().GetData();
+  //std::string mac_from(arp.GetSourceHardwareAddress().GetData());
+  //std::cout<<"The source address is "<<mac_from<<"\n";
+  RSA::PublicKey publicKey = publicKeys[ip_from];
+  //std::cout<<"Count "<<publicKeys.count(mac_from)<<"\n";
+  //std::cout<<oss.str()<<"\n";
+  /*std::cout << "Received Signature";
+  for(int i = 0;i<192;i++)
+    std::cout<<(int)(((char*)(arp.GetDigitalSignature().data()))[i])<<"-";
+  std::cout << "\n";*/
+  if(!verifyDigitalSignature(arp.GetDigitalSignature(), publicKey , oss.str()))
 	{
 	  NS_LOG_LOGIC ("ARP : ARP packet received from unauthentic source");
 	  std::cout<<"ARP : ARP packet received from unauthentic source\n";
@@ -200,10 +211,15 @@ ArpL3Protocol::Receive (Ptr<NetDevice> device, Ptr<const Packet> p, uint16_t pro
   else {
 	  std::cout<<"ARP : ARP packet received from authentic source\n";
   }
+
   NS_LOG_LOGIC ("ARP: received "<< (arp.IsRequest () ? "request" : "reply") <<
                 " node="<<m_node->GetId ()<<", got request from " <<
                 arp.GetSourceIpv4Address () << " for address " <<
                 arp.GetDestinationIpv4Address () << "; we have addresses: ");
+  std::cout<<"ARP: received "<< (arp.IsRequest () ? "request" : "reply") <<
+                " node="<<m_node->GetId ()<<", got request from " <<
+                arp.GetSourceIpv4Address () << " for address " <<
+                arp.GetDestinationIpv4Address () << "; we have addresses: ";
   for (uint32_t i = 0; i < cache->GetInterface ()->GetNAddresses (); i++)
     {
 	  std::cout << cache->GetInterface ()->GetAddress (i).GetLocal () << ", ";
@@ -381,7 +397,15 @@ ArpL3Protocol::SendArpRequest (Ptr<const ArpCache> cache, Ipv4Address to)
                 " || src: " << device->GetAddress () << " / " << source <<
                 " || dst: " << device->GetBroadcast () << " / " << to);
   arp.SetRequest (device->GetAddress (), source, device->GetBroadcast (), to);
-  arp.SetDigitalSignature(createDigitalSignature(m_node->GetPrivateKey(), packet->ToString()));
+  std::ostringstream oss;
+  arp.Print (oss);
+  //std::cout<<"While Sending "<<oss.str()<<"\n";
+
+  arp.SetDigitalSignature(createDigitalSignature(m_node->GetPrivateKey(), oss.str()));
+  /*std::cout << "Sending";
+  for(int i = 0;i<192;i++)
+    std::cout<<(int)(((char*)(arp.GetDigitalSignature().data()))[i])<<"-";
+  std::cout << "\n";*/
   packet->AddHeader (arp);
   cache->GetDevice ()->Send (packet, device->GetBroadcast (), PROT_NUMBER);
 }
@@ -398,7 +422,11 @@ ArpL3Protocol::SendArpReply (Ptr<const ArpCache> cache, Ipv4Address myIp, Ipv4Ad
   arp.SetReply (cache->GetDevice ()->GetAddress (), myIp, toMac, toIp);
   Ptr<Packet> packet = Create<Packet> ();
   packet->EnablePrinting();
-  arp.SetDigitalSignature(createDigitalSignature(m_node->GetPrivateKey(), packet->ToString()));
+  std::ostringstream oss;
+  arp.Print (oss);
+  //std::cout<<"While Sending "<<oss.str()<<"\n";
+
+  arp.SetDigitalSignature(createDigitalSignature(m_node->GetPrivateKey(), oss.str()));
   packet->AddHeader (arp);
   cache->GetDevice ()->Send (packet, toMac, PROT_NUMBER);
 }

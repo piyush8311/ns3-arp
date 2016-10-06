@@ -22,7 +22,7 @@
 #include "ns3/address-utils.h"
 #include "arp-header.h"
 #include "ns3/log.h"
-
+#include <typeinfo>
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("ArpHeader");
@@ -152,9 +152,10 @@ ArpHeader::GetSerializedSize (void) const
   uint32_t length = 16;   // Length minus two hardware addresses
   length += m_macSource.GetLength () * 2;
   //length += sizeof(uint32_t);
-  std::string m_digitalSignature_string(reinterpret_cast<const char*>(m_digitalSignature.data()),m_digitalSignature.size());
-  int sig_length = m_digitalSignature_string.length();
-  length += sig_length;
+  /*std::string m_digitalSignature_string(reinterpret_cast<const char*>(m_digitalSignature.data()),m_digitalSignature.size());
+  int sig_length = m_digitalSignature_string.length();*/
+  length += sizeof(uint32_t);
+  length += 192;
   return length;
 }
 
@@ -177,13 +178,26 @@ ArpHeader::Serialize (Buffer::Iterator start) const
   WriteTo (i, m_macDest);
   WriteTo (i, m_ipv4Dest);
   //i.WriteHtolsbU32(m_digitalSignature);
-  std::string m_digitalSignature_string(reinterpret_cast<const char*>(m_digitalSignature.data()),m_digitalSignature.size());
+  /*std::string m_digitalSignature_string(reinterpret_cast<const char*>(m_digitalSignature.data()),m_digitalSignature.size());
+  std::cout<<typeid(m_digitalSignature.data()).name()<<"\n";
   int sig_length = m_digitalSignature_string.length();
-  char sig_str[sig_length];
+  char *sig_str = new char[sig_length];
   strcpy(sig_str, m_digitalSignature_string.c_str());
+  i.WriteHtolsbU32(sig_length);
   for(int j=0; j<sig_length; j++)
   {
     i.WriteU8(sig_str[j]);
+  }
+  delete [] sig_str;*/
+  uint8_t *sig = (uint8_t*)m_digitalSignature.data();
+  int sig_length = 192;
+  i.WriteHtolsbU32(sig_length);
+  for (int j = 0;j<sig_length;j++) {
+    if (sig == NULL) {
+      i.WriteU8(0);
+    } else {
+      i.WriteU8(sig[j]);
+    }
   }
 }
 
@@ -215,16 +229,23 @@ ArpHeader::Deserialize (Buffer::Iterator start)
   ReadFrom (i, m_ipv4Dest);                      // Read TPA (size PLN == 4)
   //m_digitalSignature = i.ReadLsbtohU32();
   //int sig_length = GetSerializedSize();
-  char sig_str[200] = {0};
-  int j = 0;
-  while(i.IsEnd())
+  /*char sig_str[200] = {0};
+  int sig_length = i.ReadLsbtohU32();
+  for(int j = 0;j<sig_length;j++)
   {
     sig_str[j] = i.ReadU8();
-    j++;
   }
-  sig_str[j] = '\0';
+  sig_str[sig_length] = '\0';
   std::string m_digitalSignature_string(sig_str);
   SecByteBlock temp_s(reinterpret_cast<const byte*>(m_digitalSignature_string.data()), m_digitalSignature_string.size());
+  m_digitalSignature = temp_s;*/
+  uint8_t sig[200] = {0};
+  int sig_length = i.ReadLsbtohU32();
+  for(int j = 0;j<sig_length;j++)
+  {
+    sig[j] = i.ReadU8();
+  }
+  SecByteBlock temp_s(sig, sig_length);
   m_digitalSignature = temp_s;
 
   return GetSerializedSize ();

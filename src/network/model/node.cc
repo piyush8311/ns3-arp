@@ -111,7 +111,7 @@ Node::SetPrivateKey (RSA::PrivateKey privateKey)
 }
 
 void
-Node::SetPublicKeys (std::map<Address, RSA::PublicKey > publicKeys)
+Node::SetPublicKeys (std::map<uint32_t, RSA::PublicKey > publicKeys)
 {
 	this->publicKeys = publicKeys;
 }
@@ -122,7 +122,7 @@ Node::GetPrivateKey()
 	return privateKey;
 }
 
-std::map<Address, RSA::PublicKey >
+std::map<uint32_t, RSA::PublicKey >
 Node::GetPublicKeys()
 {
 	return publicKeys;

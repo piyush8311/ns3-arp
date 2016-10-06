@@ -22,6 +22,7 @@
 #include "ns3/log.h"
 #include "address.h"
 #include <cstring>
+#include <cstdio>
 #include <iostream>
 #include <iomanip>
 
@@ -150,6 +151,12 @@ Address::GetSerializedSize (void) const
   return 1 + 1 + m_len;
 }
 
+char*
+Address::GetData() {
+	char* str = new char[20];
+	sprintf(str, "%2d:%2d:%2d:%2d:%2d:%2d", m_data[0], m_data[1], m_data[2], m_data[3], m_data[4], m_data[5]);
+	return str;
+}
 void
 Address::Serialize (TagBuffer buffer) const
 {
@@ -236,7 +243,7 @@ std::ostream& operator<< (std::ostream& os, const Address & address)
 {
   os.setf (std::ios::hex, std::ios::basefield);
   os.fill ('0');
-  os << std::setw (2) << (uint32_t) address.m_type << "-" << std::setw (2) << (uint32_t) address.m_len << "-";
+  //os << std::setw (2) << (uint32_t) address.m_type << "-" << std::setw (2) << (uint32_t) address.m_len << "-";
   for (uint8_t i = 0; i < (address.m_len-1); ++i)
     {
       os << std::setw (2) << (uint32_t)address.m_data[i] << ":";
@@ -283,7 +290,6 @@ std::istream& operator>> (std::istream& is, Address & address)
     }
   return is;
 }
-
 
 
 } // namespace ns3

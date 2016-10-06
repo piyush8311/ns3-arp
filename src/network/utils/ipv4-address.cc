@@ -406,6 +406,11 @@ Ipv4Address::GetLoopback (void)
   return loopback;
 }
 
+uint32_t
+Ipv4Address::GetData()
+{
+	return m_address;
+}
 size_t Ipv4AddressHash::operator() (Ipv4Address const &x) const
 { 
   return x.Get ();

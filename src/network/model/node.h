@@ -36,6 +36,7 @@ using CryptoPP::PrivateKey;
 using CryptoPP::PublicKey;
 
 #include <map>
+#include <string>
 
 #define KEY_LENGTH 100
 
@@ -90,11 +91,11 @@ public:
 
   void SetPrivateKey (RSA::PrivateKey privateKey);
 
-  void SetPublicKeys (std::map<Address, RSA::PublicKey > publicKeys);
+  void SetPublicKeys (std::map<uint32_t, RSA::PublicKey > publicKeys);
 
   RSA::PrivateKey GetPrivateKey();
 
-  std::map<Address, RSA::PublicKey > GetPublicKeys();
+  std::map<uint32_t, RSA::PublicKey > GetPublicKeys();
 
   uint32_t GetId (void) const;
 
@@ -310,7 +311,7 @@ private:
   DeviceAdditionListenerList m_deviceAdditionListeners; //!< Device addition listeners in the node
   //char privateKey[KEY_LENGTH];
   RSA::PrivateKey privateKey;
-  std::map<Address, RSA::PublicKey > publicKeys;
+  std::map<uint32_t, RSA::PublicKey > publicKeys;
 };
 
 } // namespace ns3

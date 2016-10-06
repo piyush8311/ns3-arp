@@ -42,7 +42,7 @@ public:
   Ipv4Address ();
   /**
    * input address is in host order.
-   * \param address The host order 32-bit address
+   * \param address The host order 32-bit add+ress
    */
   explicit Ipv4Address (uint32_t address);
   /** 
@@ -200,6 +200,7 @@ public:
    */
   static Ipv4Address GetLoopback (void);
 
+  uint32_t GetData();
 private:
 
   /**

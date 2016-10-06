@@ -26,7 +26,7 @@
 #include "ns3/attribute.h"
 #include "ns3/attribute-helper.h"
 #include "ns3/tag-buffer.h"
-
+#include <string>
 namespace ns3 {
 
 /**
@@ -211,6 +211,9 @@ public:
    * \returns the number of bytes required for an Address in serialized form
    */
   uint32_t GetSerializedSize (void) const;
+
+  char* GetData ();
+
   /**
    * Serialize this address in host byte order to a byte buffer
    *
